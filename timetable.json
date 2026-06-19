@@ -1,0 +1,86 @@
+{
+  "monday": [
+    { "time": "06:00", "label": "Wake up & hydrate", "category": "morning" },
+    { "time": "06:20", "label": "Journal / intention", "category": "morning" },
+    { "time": "06:30", "label": "Gym", "category": "fitness" },
+    { "time": "07:30", "label": "Get ready + commute", "category": "morning" },
+    { "time": "09:00", "label": "IT job — WFO", "category": "work" },
+    { "time": "19:00", "label": "Freelance project", "category": "freelance" },
+    { "time": "20:00", "label": "Learn React.js", "category": "learn" },
+    { "time": "21:00", "label": "Family, GF & friends", "category": "social" },
+    { "time": "22:00", "label": "Wind down", "category": "rest" },
+    { "time": "23:00", "label": "Sleep prep", "category": "rest" }
+  ],
+  "tuesday": [
+    { "time": "06:00", "label": "Wake up & hydrate", "category": "morning" },
+    { "time": "06:20", "label": "Morning walk / stretch", "category": "fitness" },
+    { "time": "07:00", "label": "Forex study", "category": "trade" },
+    { "time": "08:30", "label": "Breakfast & settle", "category": "morning" },
+    { "time": "09:00", "label": "IT job — WFH", "category": "work" },
+    { "time": "13:00", "label": "Job applications", "category": "job" },
+    { "time": "14:00", "label": "IT job — WFH cont.", "category": "work" },
+    { "time": "18:30", "label": "Freelance project", "category": "freelance" },
+    { "time": "20:00", "label": "Interview prep", "category": "job" },
+    { "time": "21:00", "label": "GF + social time", "category": "social" },
+    { "time": "22:30", "label": "Wind down & sleep", "category": "rest" }
+  ],
+  "wednesday": [
+    { "time": "06:00", "label": "Wake up & hydrate", "category": "morning" },
+    { "time": "06:20", "label": "Mid-week check-in", "category": "morning" },
+    { "time": "06:30", "label": "Gym", "category": "fitness" },
+    { "time": "07:30", "label": "Get ready + commute", "category": "morning" },
+    { "time": "09:00", "label": "IT job — WFO", "category": "work" },
+    { "time": "19:00", "label": "Learn React.js", "category": "learn" },
+    { "time": "20:00", "label": "Forex", "category": "trade" },
+    { "time": "21:00", "label": "Family & GF", "category": "social" },
+    { "time": "22:30", "label": "Wind down & sleep", "category": "rest" }
+  ],
+  "thursday": [
+    { "time": "06:00", "label": "Wake up & hydrate", "category": "morning" },
+    { "time": "06:20", "label": "Yoga / active recovery", "category": "fitness" },
+    { "time": "07:00", "label": "Interview prep", "category": "job" },
+    { "time": "08:30", "label": "Breakfast & settle", "category": "morning" },
+    { "time": "09:00", "label": "IT job — WFH", "category": "work" },
+    { "time": "13:00", "label": "Lunch + recharge", "category": "rest" },
+    { "time": "14:00", "label": "IT job — WFH cont.", "category": "work" },
+    { "time": "18:30", "label": "Freelance project", "category": "freelance" },
+    { "time": "20:00", "label": "Learn React.js", "category": "learn" },
+    { "time": "21:00", "label": "GF + friends", "category": "social" },
+    { "time": "22:30", "label": "Wind down & sleep", "category": "rest" }
+  ],
+  "friday": [
+    { "time": "06:00", "label": "Wake up & hydrate", "category": "morning" },
+    { "time": "06:20", "label": "Weekly review prep", "category": "morning" },
+    { "time": "06:30", "label": "Gym", "category": "fitness" },
+    { "time": "07:30", "label": "Get ready + commute", "category": "morning" },
+    { "time": "09:00", "label": "IT job — WFO", "category": "work" },
+    { "time": "19:00", "label": "Freelance weekly wrap", "category": "freelance" },
+    { "time": "19:45", "label": "Weekly review", "category": "rest" },
+    { "time": "20:30", "label": "Friday social / go out", "category": "social" },
+    { "time": "23:00", "label": "Sleep prep", "category": "rest" }
+  ],
+  "saturday": [
+    { "time": "06:00", "label": "Slow wake up", "category": "rest" },
+    { "time": "07:00", "label": "Breakfast + morning walk", "category": "fitness" },
+    { "time": "08:00", "label": "Forex weekly analysis", "category": "trade" },
+    { "time": "10:00", "label": "React.js deep dive", "category": "learn" },
+    { "time": "13:00", "label": "Lunch break", "category": "rest" },
+    { "time": "14:00", "label": "Freelance sprint", "category": "freelance" },
+    { "time": "16:00", "label": "Hangout / explore BLR", "category": "social" },
+    { "time": "20:00", "label": "Job hunt", "category": "job" },
+    { "time": "21:30", "label": "Entertainment / free", "category": "rest" },
+    { "time": "23:00", "label": "Sleep prep", "category": "rest" }
+  ],
+  "sunday": [
+    { "time": "06:00", "label": "Slow wake up", "category": "rest" },
+    { "time": "07:30", "label": "Meal prep + diet plan", "category": "fitness" },
+    { "time": "09:00", "label": "Interview prep", "category": "job" },
+    { "time": "11:00", "label": "Self-learning", "category": "learn" },
+    { "time": "13:00", "label": "Quality time — family & GF", "category": "social" },
+    { "time": "16:00", "label": "Freelance planning", "category": "freelance" },
+    { "time": "17:30", "label": "Weekly planning ritual", "category": "morning" },
+    { "time": "18:30", "label": "Full rest / music / walk", "category": "rest" },
+    { "time": "21:30", "label": "Social wind-down", "category": "social" },
+    { "time": "23:00", "label": "Sleep prep", "category": "rest" }
+  ]
+}

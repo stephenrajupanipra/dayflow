@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#26215C" />
+<link rel="manifest" href="manifest.json" />
+<link rel="apple-touch-icon" href="icons/icon-192.png" />
+<title>DayFlow</title>
+<style>
+  :root {
+    /* Light theme */
+    --bg: #f5f5f7;
+    --surface: #ffffff;
+    --surface-2: #efeef3;
+    --line: #e4e3ea;
+    --text: #1c1b22;
+    --text-dim: #6c6b76;
+    --text-faint: #a3a2ad;
+    --accent: #26215C;
+    --accent-soft: #ece9fb;
+    --active-bg: #ffffff;
+    --shadow: 0 1px 0 rgba(0,0,0,0.04);
+
+    --cat-morning: #EF9F27;
+    --cat-work: #378ADD;
+    --cat-fitness: #639922;
+    --cat-learn: #7F77DD;
+    --cat-trade: #1D9E75;
+    --cat-job: #D85A30;
+    --cat-freelance: #BA7517;
+    --cat-social: #D4537E;
+    --cat-rest: #888780;
+
+    --nav-h: 60px;
+    --header-h: 64px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14121f;
+      --surface: #1e1b2c;
+      --surface-2: #262236;
+      --line: #2e2a40;
+      --text: #f0eff5;
+      --text-dim: #a6a2b8;
+      --text-faint: #6f6b82;
+      --accent: #9d93f0;
+      --accent-soft: #241f3d;
+      --active-bg: #272238;
+      --shadow: none;
+    }
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.4;
+    overflow-x: hidden;
+  }
+
+  .app {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+    position: relative;
+  }
+
+  /* ---------- Header ---------- */
+  header.bar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--bg);
+    padding: calc(env(safe-area-inset-top) + 16px) 20px 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  header.bar .day { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+  header.bar .date { font-size: 13px; color: var(--text-dim); margin-top: 2px; }
+  header.bar.hidden { display: none; }
+
+  .progress-wrap { margin-top: 12px; }
+  .progress-meta {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-size: 12px; color: var(--text-dim); margin-bottom: 6px;
+  }
+  .progress-meta strong { color: var(--text); font-weight: 600; }
+  .progress-track {
+    height: 6px; border-radius: 99px; background: var(--surface-2); overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; border-radius: 99px; background: var(--accent);
+    width: 0%; transition: width 0.35s ease;
+  }
+
+  /* ---------- Main / views ---------- */
+  main {
+    padding: 12px 16px calc(var(--nav-h) + env(safe-area-inset-bottom) + 24px);
+  }
+
+  /* ---------- Block list ---------- */
+  .block {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid transparent;
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    min-height: 60px;
+    box-shadow: var(--shadow);
+    transition: opacity 0.2s ease, transform 0.12s ease;
+  }
+  .block.active {
+    border-left-color: var(--cat);
+    background: var(--active-bg);
+    border-color: var(--cat);
+  }
+  .block.done { opacity: 0.5; }
+  .block.done .label { text-decoration: line-through; }
+
+  .dot {
+    width: 11px; height: 11px; border-radius: 50%;
+    background: var(--cat); flex-shrink: 0;
+  }
+  .block .meta { flex: 1; min-width: 0; }
+  .block .time {
+    font-size: 12px; font-weight: 600; color: var(--text-dim);
+    font-variant-numeric: tabular-nums; letter-spacing: 0.01em;
+  }
+  .block.active .time { color: var(--cat); }
+  .block .label {
+    font-size: 15px; font-weight: 500; color: var(--text);
+    margin-top: 1px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .block .now-tag {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--cat); margin-left: 8px;
+  }
+
+  .check {
+    width: 30px; height: 30px; flex-shrink: 0;
+    border-radius: 50%;
+    border: 2px solid var(--line);
+    background: transparent;
+    display: grid; place-items: center;
+    cursor: pointer;
+    padding: 0;
+    /* keep a 44px tap target without enlarging the visual circle */
+    position: relative;
+  }
+  .check::after {
+    content: ""; position: absolute; inset: -8px;
+  }
+  .check svg { width: 16px; height: 16px; opacity: 0; transform: scale(0.6); transition: 0.15s ease; }
+  .check.on { background: var(--cat); border-color: var(--cat); }
+  .check.on svg { opacity: 1; transform: scale(1); }
+  .check svg path { stroke: #fff; }
+
+  .empty {
+    text-align: center; color: var(--text-dim);
+    padding: 56px 24px; font-size: 14px;
+  }
+
+  /* ---------- Banner ---------- */
+  .banner {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--accent-soft);
+    border: 1px solid var(--line);
+    border-radius: 12px; padding: 12px 14px; margin-bottom: 12px;
+  }
+  .banner p { margin: 0; font-size: 13px; color: var(--text); flex: 1; }
+  .banner button {
+    border: none; background: var(--accent); color: #fff;
+    font-size: 13px; font-weight: 600; padding: 8px 14px;
+    border-radius: 8px; cursor: pointer; white-space: nowrap;
+  }
+  @media (prefers-color-scheme: dark) { .banner button { color: #14121f; } }
+
+  /* ---------- Week tabs ---------- */
+  .tabs {
+    display: flex; gap: 6px; overflow-x: auto; padding: 4px 0 10px;
+    scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    flex: 0 0 auto; padding: 8px 14px; border-radius: 99px;
+    border: 1px solid var(--line); background: var(--surface);
+    color: var(--text-dim); font-size: 13px; font-weight: 600;
+    cursor: pointer; min-height: 38px;
+  }
+  .tab.sel { background: var(--accent); color: #fff; border-color: var(--accent); }
+  @media (prefers-color-scheme: dark) { .tab.sel { color: #14121f; } }
+  .tab.today-marker::after { content: " ·"; }
+
+  /* ---------- Settings ---------- */
+  .section-title {
+    font-size: 12px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--text-faint);
+    margin: 22px 4px 8px;
+  }
+  .card {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 12px; overflow: hidden;
+  }
+  .row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px; min-height: 56px;
+    border-bottom: 1px solid var(--line);
+  }
+  .row:last-child { border-bottom: none; }
+  .row .row-main { flex: 1; }
+  .row .row-title { font-size: 15px; font-weight: 500; }
+  .row .row-sub { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+  .row button.link {
+    border: none; background: none; color: var(--accent);
+    font-size: 14px; font-weight: 600; cursor: pointer; padding: 6px;
+  }
+
+  /* Toggle */
+  .toggle { width: 46px; height: 28px; border-radius: 99px; background: var(--surface-2);
+    border: 1px solid var(--line); position: relative; cursor: pointer; flex-shrink: 0;
+    transition: background 0.2s ease; }
+  .toggle::after { content: ""; position: absolute; top: 2px; left: 2px;
+    width: 22px; height: 22px; border-radius: 50%; background: #fff;
+    transition: transform 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
+  .toggle.on { background: var(--accent); border-color: var(--accent); }
+  .toggle.on::after { transform: translateX(18px); }
+
+  /* ---------- Setup / upload ---------- */
+  .setup {
+    min-height: 100dvh; display: flex; flex-direction: column;
+    justify-content: center; align-items: center; text-align: center;
+    padding: 32px 24px calc(env(safe-area-inset-bottom) + 32px);
+    gap: 8px;
+  }
+  .setup .logo { width: 72px; height: 72px; border-radius: 18px; margin-bottom: 8px; }
+  .setup h1 { font-size: 26px; font-weight: 700; margin: 0; letter-spacing: -0.02em; }
+  .setup .sub { color: var(--text-dim); font-size: 14px; margin: 0 0 20px; max-width: 280px; }
+  .drop {
+    width: 100%; max-width: 340px;
+    border: 2px dashed var(--line); border-radius: 16px;
+    padding: 36px 20px; background: var(--surface);
+    cursor: pointer; transition: border-color 0.2s, background 0.2s;
+  }
+  .drop.over { border-color: var(--accent); background: var(--accent-soft); }
+  .drop .big { font-size: 15px; font-weight: 600; }
+  .drop .small { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+  .setup .err { color: var(--cat-job); font-size: 13px; min-height: 18px; margin-top: 4px; }
+  .setup .ghost-btn {
+    margin-top: 10px; border: none; background: none; color: var(--accent);
+    font-size: 13px; font-weight: 600; cursor: pointer; padding: 8px;
+  }
+
+  /* ---------- Bottom nav ---------- */
+  nav.tabbar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+    background: var(--surface);
+    border-top: 1px solid var(--line);
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  nav.tabbar.hidden { display: none; }
+  nav.tabbar .navbtn {
+    flex: 1; border: none; background: none; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 9px 0; color: var(--text-faint);
+    font-size: 11px; font-weight: 600; min-height: var(--nav-h);
+  }
+  nav.tabbar .navbtn svg { width: 22px; height: 22px; }
+  nav.tabbar .navbtn.sel { color: var(--accent); }
+  nav.tabbar .navbtn svg path,
+  nav.tabbar .navbtn svg circle,
+  nav.tabbar .navbtn svg rect { stroke: currentColor; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: calc(var(--nav-h) + env(safe-area-inset-bottom) + 16px);
+    transform: translateX(-50%) translateY(20px);
+    background: var(--text); color: var(--bg);
+    font-size: 13px; font-weight: 500;
+    padding: 10px 16px; border-radius: 99px;
+    opacity: 0; pointer-events: none; transition: 0.25s ease; z-index: 40;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="bar hidden" id="header">
+    <div class="day" id="hDay">Today</div>
+    <div class="date" id="hDate"></div>
+    <div class="progress-wrap" id="progressWrap" style="display:none">
+      <div class="progress-meta">
+        <span id="progLabel">0/0 done today</span>
+        <strong id="progPct">0%</strong>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progFill"></div></div>
+    </div>
+  </header>
+
+  <main id="view"></main>
+
+  <nav class="tabbar hidden" id="nav">
+    <button class="navbtn" data-view="today">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 10.5 12 4l9 6.5"/><path d="M5 9.5V20h14V9.5"/></svg>
+      Today
+    </button>
+    <button class="navbtn" data-view="week">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M8 3.5v3M16 3.5v3"/></svg>
+      Week
+    </button>
+    <button class="navbtn" data-view="settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M18.4 5.6l-1.8 1.8M7.4 16.6l-1.8 1.8"/></svg>
+      Settings
+    </button>
+  </nav>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+
+const DAYS = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+const DAY_LABEL = { sunday:'Sunday', monday:'Monday', tuesday:'Tuesday', wednesday:'Wednesday', thursday:'Thursday', friday:'Friday', saturday:'Saturday' };
+const DAY_SHORT = { sunday:'Sun', monday:'Mon', tuesday:'Tue', wednesday:'Wed', thursday:'Thu', friday:'Fri', saturday:'Sat' };
+const CATS = ['morning','work','fitness','learn','trade','job','freelance','social','rest'];
+
+const LS_TIMETABLE = 'dayflow.timetable';
+const LS_COMPLETIONS = 'dayflow.completions';
+const LS_NOTIF = 'dayflow.notifications';
+
+let state = {
+  timetable: null,
+  view: 'today',
+  weekDay: null,     // selected day in Week view
+  notif: 'on'        // 'on' | 'off'
+};
+let timers = [];
+
+/* ---------- storage ---------- */
+function loadTimetable() {
+  try { return JSON.parse(localStorage.getItem(LS_TIMETABLE)); }
+  catch { return null; }
+}
+function saveTimetable(tt) { localStorage.setItem(LS_TIMETABLE, JSON.stringify(tt)); }
+
+function getCompletions() {
+  try { return JSON.parse(localStorage.getItem(LS_COMPLETIONS)) || {}; }
+  catch { return {}; }
+}
+function setCompletions(obj) {
+  // keep only the last 14 days to stay tidy
+  const keys = Object.keys(obj).sort();
+  while (keys.length > 14) { delete obj[keys.shift()]; }
+  localStorage.setItem(LS_COMPLETIONS, JSON.stringify(obj));
+}
+
+/* ---------- time helpers ---------- */
+function todayName() { return DAYS[new Date().getDay()]; }
+function dateKey(d = new Date()) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const da = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${da}`;
+}
+function toMin(t) { const [h, m] = t.split(':').map(Number); return h * 60 + m; }
+function nowMin() { const d = new Date(); return d.getHours() * 60 + d.getMinutes(); }
+function fmt12(t) {
+  const [h, m] = t.split(':').map(Number);
+  const ap = h < 12 ? 'AM' : 'PM';
+  const hh = ((h + 11) % 12) + 1;
+  return `${hh}:${String(m).padStart(2, '0')} ${ap}`;
+}
+function prettyDate(d = new Date()) {
+  return d.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' });
+}
+
+/* completion key per spec: `day-time` */
+function blockKey(day, time) { return `${day}-${time}`; }
+function isDone(day, time) {
+  const c = getCompletions(); const dk = dateKey();
+  return !!(c[dk] && c[dk][blockKey(day, time)]);
+}
+function toggleDone(day, time) {
+  const c = getCompletions(); const dk = dateKey();
+  c[dk] = c[dk] || {};
+  const k = blockKey(day, time);
+  c[dk][k] = !c[dk][k];
+  setCompletions(c);
+}
+
+/* index of currently active block in a list (or -1) */
+function activeIndex(blocks) {
+  const n = nowMin();
+  let idx = -1;
+  for (let i = 0; i < blocks.length; i++) {
+    if (toMin(blocks[i].time) <= n) idx = i; else break;
+  }
+  return idx;
+}
+
+/* ---------- rendering ---------- */
+const view = document.getElementById('view');
+const header = document.getElementById('header');
+const nav = document.getElementById('nav');
+
+function checkSvg() {
+  return '<svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 10 17.5 19 7"/></svg>';
+}
+
+function render() {
+  if (!state.timetable) { renderSetup(); return; }
+  header.classList.remove('hidden');
+  nav.classList.remove('hidden');
+  [...nav.querySelectorAll('.navbtn')].forEach(b =>
+    b.classList.toggle('sel', b.dataset.view === state.view));
+
+  if (state.view === 'today') renderToday();
+  else if (state.view === 'week') renderWeek();
+  else if (state.view === 'settings') renderSettings();
+}
+
+function setHeader(title, sub, showProgress) {
+  document.getElementById('hDay').textContent = title;
+  document.getElementById('hDate').textContent = sub || '';
+  document.getElementById('progressWrap').style.display = showProgress ? '' : 'none';
+}
+
+function renderToday() {
+  const day = todayName();
+  const blocks = (state.timetable[day] || []).slice().sort((a, b) => toMin(a.time) - toMin(b.time));
+  setHeader('Today · ' + DAY_LABEL[day], prettyDate(), true);
+
+  const act = activeIndex(blocks);
+  let done = 0;
+  let html = '';
+
+  // reminders banner
+  if (state.notif === 'on' && 'Notification' in window && Notification.permission === 'default') {
+    html += `<div class="banner">
+      <p>Turn on reminders to get a nudge at the start of each block.</p>
+      <button id="enableNotif">Turn on</button>
+    </div>`;
+  }
+
+  if (blocks.length === 0) {
+    html += `<div class="empty">No blocks scheduled for ${DAY_LABEL[day]}.<br>Add them to your timetable JSON.</div>`;
+  } else {
+    blocks.forEach((b, i) => {
+      const cat = CATS.includes(b.category) ? b.category : 'rest';
+      const doneNow = isDone(day, b.time);
+      if (doneNow) done++;
+      const active = i === act && !doneNow;
+      html += `
+        <div class="block${active ? ' active' : ''}${doneNow ? ' done' : ''}" style="--cat:var(--cat-${cat})">
+          <span class="dot"></span>
+          <div class="meta">
+            <div class="time">${fmt12(b.time)} · ${cat}${active ? '<span class="now-tag">Now</span>' : ''}</div>
+            <div class="label">${escapeHtml(b.label)}</div>
+          </div>
+          <button class="check${doneNow ? ' on' : ''}" data-day="${day}" data-time="${b.time}" aria-label="Mark ${escapeHtml(b.label)} done">
+            ${checkSvg()}
+          </button>
+        </div>`;
+    });
+  }
+
+  view.innerHTML = html;
+  updateProgress(done, blocks.length);
+
+  const enable = document.getElementById('enableNotif');
+  if (enable) enable.addEventListener('click', requestNotifications);
+
+  view.querySelectorAll('.check').forEach(btn => {
+    btn.addEventListener('click', () => {
+      toggleDone(btn.dataset.day, btn.dataset.time);
+      renderToday();
+    });
+  });
+}
+
+function updateProgress(done, total) {
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  document.getElementById('progLabel').textContent = `${done}/${total} done today`;
+  document.getElementById('progPct').textContent = pct + '%';
+  document.getElementById('progFill').style.width = pct + '%';
+}
+
+function renderWeek() {
+  setHeader('Week', 'Tap a day to view its plan', false);
+  if (!state.weekDay) state.weekDay = todayName();
+
+  const order = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+  let tabs = '<div class="tabs">';
+  order.forEach(d => {
+    const sel = d === state.weekDay ? ' sel' : '';
+    const today = d === todayName() ? ' today-marker' : '';
+    tabs += `<button class="tab${sel}${today}" data-day="${d}">${DAY_SHORT[d]}</button>`;
+  });
+  tabs += '</div>';
+
+  const blocks = (state.timetable[state.weekDay] || []).slice().sort((a, b) => toMin(a.time) - toMin(b.time));
+  let list = '';
+  if (blocks.length === 0) {
+    list = `<div class="empty">Nothing scheduled for ${DAY_LABEL[state.weekDay]}.</div>`;
+  } else {
+    blocks.forEach(b => {
+      const cat = CATS.includes(b.category) ? b.category : 'rest';
+      list += `
+        <div class="block" style="--cat:var(--cat-${cat})">
+          <span class="dot"></span>
+          <div class="meta">
+            <div class="time">${fmt12(b.time)} · ${cat}</div>
+            <div class="label">${escapeHtml(b.label)}</div>
+          </div>
+        </div>`;
+    });
+  }
+
+  view.innerHTML = tabs + list;
+  view.querySelectorAll('.tab').forEach(t => {
+    t.addEventListener('click', () => { state.weekDay = t.dataset.day; renderWeek(); });
+  });
+}
+
+function renderSettings() {
+  setHeader('Settings', '', false);
+  const perm = ('Notification' in window) ? Notification.permission : 'unsupported';
+  const notifOn = state.notif === 'on';
+
+  let permNote = '';
+  if (perm === 'denied') permNote = 'Blocked in your browser settings. Re-enable site notifications to use reminders.';
+  else if (perm === 'granted') permNote = 'Reminders are allowed.';
+  else if (perm === 'unsupported') permNote = 'Notifications are not supported on this browser.';
+  else permNote = 'Tap to allow notifications.';
+
+  view.innerHTML = `
+    <div class="section-title">Timetable</div>
+    <div class="card">
+      <div class="row">
+        <div class="row-main">
+          <div class="row-title">Re-upload timetable</div>
+          <div class="row-sub">Replace your current schedule</div>
+        </div>
+        <button class="link" id="reupload">Upload</button>
+      </div>
+      <div class="row">
+        <div class="row-main">
+          <div class="row-title">Reset today's completions</div>
+          <div class="row-sub">Clear every check for ${prettyDate()}</div>
+        </div>
+        <button class="link" id="resetToday">Reset</button>
+      </div>
+    </div>
+
+    <div class="section-title">Reminders</div>
+    <div class="card">
+      <div class="row">
+        <div class="row-main">
+          <div class="row-title">Block reminders</div>
+          <div class="row-sub">${permNote}</div>
+        </div>
+        <div class="toggle${notifOn ? ' on' : ''}" id="notifToggle" role="switch" aria-checked="${notifOn}"></div>
+      </div>
+      <div class="row">
+        <div class="row-main">
+          <div class="row-title">Send a test reminder</div>
+          <div class="row-sub">Check that notifications come through</div>
+        </div>
+        <button class="link" id="testNotif">Test</button>
+      </div>
+    </div>
+
+    <div class="section-title">About</div>
+    <div class="card">
+      <div class="row">
+        <div class="row-main">
+          <div class="row-title">DayFlow</div>
+          <div class="row-sub">A simple offline daily timetable. Your data stays on this device.</div>
+        </div>
+      </div>
+    </div>
+
+    <input type="file" id="fileInput" accept="application/json,.json" hidden />
+  `;
+
+  const fileInput = document.getElementById('fileInput');
+  document.getElementById('reupload').addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', e => {
+    if (e.target.files[0]) handleFile(e.target.files[0], () => { toast('Timetable updated'); state.view = 'today'; render(); });
+  });
+
+  document.getElementById('resetToday').addEventListener('click', () => {
+    const c = getCompletions(); delete c[dateKey()]; setCompletions(c);
+    toast("Today's completions reset");
+    renderSettings();
+  });
+
+  document.getElementById('notifToggle').addEventListener('click', () => {
+    if (state.notif === 'on') {
+      state.notif = 'off'; localStorage.setItem(LS_NOTIF, 'off');
+      clearTimers(); toast('Reminders off');
+    } else {
+      state.notif = 'on'; localStorage.setItem(LS_NOTIF, 'on');
+      requestNotifications();
+    }
+    renderSettings();
+  });
+
+  document.getElementById('testNotif').addEventListener('click', async () => {
+    if (!('Notification' in window)) { toast('Not supported here'); return; }
+    if (Notification.permission !== 'granted') { await requestNotifications(); }
+    if (Notification.permission === 'granted') {
+      fireNotification('DayFlow', 'Test reminder · reminders are working', 'dayflow-test');
+      toast('Test reminder sent');
+    }
+  });
+}
+
+function renderSetup() {
+  header.classList.add('hidden');
+  nav.classList.add('hidden');
+  document.getElementById('progressWrap').style.display = 'none';
+  view.innerHTML = `
+    <div class="setup">
+      <img class="logo" src="icons/icon-192.png" alt="" />
+      <h1>DayFlow</h1>
+      <p class="sub">Upload your timetable JSON to get started.</p>
+      <div class="drop" id="drop">
+        <div class="big">Tap to choose a file</div>
+        <div class="small">or drag &amp; drop your timetable.json</div>
+      </div>
+      <div class="err" id="err"></div>
+      <button class="ghost-btn" id="useSample">Use the sample timetable</button>
+      <input type="file" id="fileInput" accept="application/json,.json" hidden />
+    </div>`;
+
+  const drop = document.getElementById('drop');
+  const fileInput = document.getElementById('fileInput');
+  const err = document.getElementById('err');
+
+  drop.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', e => {
+    if (e.target.files[0]) handleFile(e.target.files[0], onLoaded, e => err.textContent = e);
+  });
+
+  ['dragenter','dragover'].forEach(ev =>
+    drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+  ['dragleave','drop'].forEach(ev =>
+    drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+  drop.addEventListener('drop', e => {
+    const f = e.dataTransfer.files[0];
+    if (f) handleFile(f, onLoaded, msg => err.textContent = msg);
+  });
+
+  document.getElementById('useSample').addEventListener('click', () => {
+    fetch('timetable.json').then(r => r.json()).then(tt => {
+      if (validate(tt)) { state.timetable = tt; saveTimetable(tt); onLoaded(); }
+    }).catch(() => err.textContent = 'Could not load the sample. Upload a file instead.');
+  });
+
+  function onLoaded() { state.view = 'today'; render(); scheduleNotifications(); }
+}
+
+/* ---------- file handling ---------- */
+function validate(tt) {
+  if (!tt || typeof tt !== 'object' || Array.isArray(tt)) return false;
+  const present = DAYS.filter(d => Array.isArray(tt[d]));
+  if (present.length === 0) return false;
+  // each entry must have time + label
+  for (const d of present) {
+    for (const b of tt[d]) {
+      if (!b || typeof b.time !== 'string' || typeof b.label !== 'string') return false;
+      if (!/^\d{1,2}:\d{2}$/.test(b.time)) return false;
+    }
+  }
+  return true;
+}
+
+function handleFile(file, ok, fail) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const tt = JSON.parse(reader.result);
+      if (!validate(tt)) throw new Error('format');
+      state.timetable = tt; saveTimetable(tt);
+      if (ok) ok();
+    } catch (err) {
+      const msg = "That file isn't a valid timetable. Check the JSON format and try again.";
+      if (fail) fail(msg); else toast(msg);
+    }
+  };
+  reader.onerror = () => { if (fail) fail('Could not read that file.'); };
+  reader.readAsText(file);
+}
+
+/* ---------- notifications ---------- */
+async function requestNotifications() {
+  if (!('Notification' in window)) { toast('Notifications not supported'); return; }
+  try {
+    const perm = await Notification.requestPermission();
+    if (perm === 'granted') { scheduleNotifications(); toast('Reminders on'); }
+    else if (perm === 'denied') toast('Reminders blocked in browser');
+  } catch (_) {}
+  render();
+}
+
+async function fireNotification(title, body, tag) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  const opts = {
+    body,
+    icon: 'icons/icon-192.png',
+    badge: 'icons/icon-192.png',
+    tag: tag || 'dayflow-block',
+    renotify: true,
+    data: { url: 'index.html' }
+  };
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    await reg.showNotification(title, opts);
+  } catch (_) {
+    try { new Notification(title, opts); } catch (e) {}
+  }
+}
+
+function clearTimers() { timers.forEach(t => clearTimeout(t)); timers = []; }
+
+function scheduleNotifications() {
+  clearTimers();
+  if (state.notif !== 'on' || !state.timetable) return;
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+
+  const day = todayName();
+  const blocks = (state.timetable[day] || []);
+  const now = new Date();
+
+  blocks.forEach(b => {
+    const cat = CATS.includes(b.category) ? b.category : 'rest';
+    const [h, m] = b.time.split(':').map(Number);
+    const fire = new Date();
+    fire.setHours(h, m, 0, 0);
+    const delay = fire.getTime() - now.getTime();
+    if (delay > 0) {
+      const id = setTimeout(() => {
+        fireNotification(b.label, `${fmt12(b.time)} · ${cat}`, 'dayflow-' + b.time);
+      }, delay);
+      timers.push(id);
+    }
+  });
+
+  // At midnight, re-render the new day and reschedule its reminders
+  const midnight = new Date();
+  midnight.setHours(24, 0, 5, 0);
+  const toMidnight = midnight.getTime() - now.getTime();
+  timers.push(setTimeout(() => {
+    if (state.view === 'today') render();
+    scheduleNotifications();
+  }, toMidnight));
+}
+
+/* ---------- misc ---------- */
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+/* nav */
+nav.querySelectorAll('.navbtn').forEach(b => {
+  b.addEventListener('click', () => { state.view = b.dataset.view; render(); });
+});
+
+/* keep the active-block highlight and progress fresh while open */
+setInterval(() => { if (state.timetable && state.view === 'today') renderToday(); }, 60 * 1000);
+
+/* re-render when returning to the app (handles day change while backgrounded) */
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && state.timetable && state.view === 'today') renderToday();
+});
+
+/* SW asks us to jump to Today after a notification tap */
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('message', e => {
+    if (e.data && e.data.type === 'GOTO_TODAY') { state.view = 'today'; render(); }
+  });
+}
+
+/* ---------- boot ---------- */
+function boot() {
+  state.timetable = loadTimetable();
+  state.notif = localStorage.getItem(LS_NOTIF) || 'on';
+  render();
+  if (state.timetable) scheduleNotifications();
+}
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+boot();
+</script>
+</body>
+</html>
