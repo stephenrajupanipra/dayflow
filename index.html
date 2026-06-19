@@ -3,59 +3,47 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="theme-color" content="#26215C" />
+<meta name="theme-color" content="#0E0E10" />
 <link rel="manifest" href="manifest.json" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitcount+Single:wght@400;500;600;700&display=swap" />
 <link rel="apple-touch-icon" href="icons/icon-192.png" />
 <title>DayFlow</title>
 <style>
   :root {
-    /* Light theme */
-    --bg: #f5f5f7;
-    --surface: #ffffff;
-    --surface-2: #efeef3;
-    --line: #e4e3ea;
-    --text: #1c1b22;
-    --text-dim: #6c6b76;
-    --text-faint: #a3a2ad;
-    --accent: #26215C;
-    --accent-soft: #ece9fb;
-    --active-bg: #ffffff;
-    --shadow: 0 1px 0 rgba(0,0,0,0.04);
+    /* Dark + neon-lime theme */
+    --bg: #0E0E10;
+    --surface: #1A1A1D;
+    --surface-2: #26262B;
+    --line: #2E2E34;
+    --text: #F4F5F0;
+    --text-dim: #A4A6A0;
+    --text-faint: #6E706A;
+    --accent: #C5F82A;        /* neon lime */
+    --on-accent: #14180A;     /* dark text on lime surfaces */
+    --accent-soft: #1F2613;
+    --active-bg: #1E2114;
+    --shadow: none;
 
     --cat-morning: #EF9F27;
-    --cat-work: #378ADD;
-    --cat-fitness: #639922;
-    --cat-learn: #7F77DD;
-    --cat-trade: #1D9E75;
-    --cat-job: #D85A30;
-    --cat-freelance: #BA7517;
-    --cat-social: #D4537E;
-    --cat-rest: #888780;
+    --cat-work: #4FA3F0;
+    --cat-fitness: #C5F82A;
+    --cat-learn: #9B91F2;
+    --cat-trade: #2BC48E;
+    --cat-job: #F0703C;
+    --cat-freelance: #D89227;
+    --cat-social: #ED5E8C;
+    --cat-rest: #8C8B83;
 
     --nav-h: 60px;
     --header-h: 64px;
   }
 
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #14121f;
-      --surface: #1e1b2c;
-      --surface-2: #262236;
-      --line: #2e2a40;
-      --text: #f0eff5;
-      --text-dim: #a6a2b8;
-      --text-faint: #6f6b82;
-      --accent: #9d93f0;
-      --accent-soft: #241f3d;
-      --active-bg: #272238;
-      --shadow: none;
-    }
-  }
-
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; padding: 0; }
   body {
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-family: "Bitcount Single", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     background: var(--bg);
     color: var(--text);
     line-height: 1.4;
@@ -176,11 +164,10 @@
   }
   .banner p { margin: 0; font-size: 13px; color: var(--text); flex: 1; }
   .banner button {
-    border: none; background: var(--accent); color: #fff;
+    border: none; background: var(--accent); color: var(--on-accent);
     font-size: 13px; font-weight: 600; padding: 8px 14px;
     border-radius: 8px; cursor: pointer; white-space: nowrap;
   }
-  @media (prefers-color-scheme: dark) { .banner button { color: #14121f; } }
 
   /* ---------- Week tabs ---------- */
   .tabs {
@@ -194,8 +181,7 @@
     color: var(--text-dim); font-size: 13px; font-weight: 600;
     cursor: pointer; min-height: 38px;
   }
-  .tab.sel { background: var(--accent); color: #fff; border-color: var(--accent); }
-  @media (prefers-color-scheme: dark) { .tab.sel { color: #14121f; } }
+  .tab.sel { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
   .tab.today-marker::after { content: " ·"; }
 
   /* ---------- Settings ---------- */
@@ -466,7 +452,7 @@ function renderToday() {
         <div class="block${active ? ' active' : ''}${doneNow ? ' done' : ''}" style="--cat:var(--cat-${cat})">
           <span class="dot"></span>
           <div class="meta">
-            <div class="time">${fmt12(b.time)} · ${cat}${active ? '<span class="now-tag">Now</span>' : ''}</div>
+            <div class="time">${fmt12(b.time)}${active ? '<span class="now-tag">Now</span>' : ''}</div>
             <div class="label">${escapeHtml(b.label)}</div>
           </div>
           <button class="check${doneNow ? ' on' : ''}" data-day="${day}" data-time="${b.time}" aria-label="Mark ${escapeHtml(b.label)} done">
